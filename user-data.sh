@@ -29,7 +29,10 @@ usermod -aG docker ec2-user || true
 mkdir -p /usr/local/lib/docker/cli-plugins
 curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-aarch64" \
   -o /usr/local/lib/docker/cli-plugins/docker-compose
+curl -SL "https://github.com/docker/buildx/releases/download/v0.34.1/buildx-v0.34.1.linux-arm64" \
+  -o /usr/local/lib/docker/cli-plugins/docker-buildx
 chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx
 # (awscli v2 ships preinstalled on Amazon Linux 2023.)
 
 # --- Get app source + deploy assets ---
