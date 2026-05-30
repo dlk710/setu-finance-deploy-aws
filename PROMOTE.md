@@ -48,7 +48,7 @@ except the tested code.
    - Same security group rules.
    - User data: `user-data.sh` with `DEPLOY_ENV="prod"`, `REPO_BRANCH="main"`
      (or your tag), and the prod `SITE_ADDRESS`.
-   - This auto-installs the 2‑hour backup cron (prod only).
+   - This keeps the 2‑hour backup cron in place with the `prod` backup prefix.
 5. Set real prod secrets: edit `/opt/setu/app/.env.prod` (PORTAL_PASSWORD, SMTP),
    then `./deploy.sh prod`. Add Gmail OAuth files under
    `server/credentials/` if you use Zelle sync.

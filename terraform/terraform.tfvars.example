@@ -1,10 +1,11 @@
 # Copy to terraform.tfvars and fill in. Do NOT commit terraform.tfvars.
 
 # --- required ---
+app_name     = "setu-finance-dev"
 owner        = "lohith"                       # your name/email (Owner tag)
 my_ip_cidr   = "203.0.113.4/32"               # your public IP /32 for SSH
 bucket_name  = "setu-finance-backups"         # must be globally unique
-site_address = "dev.finance.example.com"      # or "<public_ip>.sslip.io"
+site_address = ""                             # leave blank with create_eip=true to auto-use "<elastic-ip>.sslip.io"
 
 # --- optional (dev defaults shown) ---
 region        = "us-east-2"

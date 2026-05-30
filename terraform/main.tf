@@ -24,11 +24,18 @@ provider "aws" {
   default_tags {
     tags = {
       Project     = "setu-finance"
+      Application = var.app_name
       Environment = var.environment
       Owner       = var.owner
       ManagedBy   = "terraform"
     }
   }
+}
+
+locals {
+  resolved_site_address = trimspace(var.site_address) != "" ? trimspace(var.site_address) : (
+    var.create_eip ? "${aws_eip.app[0].public_ip}.sslip.io" : ""
+  )
 }
 
 # Use the account's default VPC + subnets (no NAT/subnet cost for a single box).

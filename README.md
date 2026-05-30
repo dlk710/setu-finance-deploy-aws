@@ -14,7 +14,7 @@ clones both: the app repo for source, this repo for the deploy assets below.
  Browser ───────────────► Caddy ──/api──► Express ──► Postgres
                             │              (8787)      (volume)
                             └─ serves the built React app
-                                                  │ (prod) every 2h: pg_dump
+                                                  │ every 2h: pg_dump
                                                   ▼
                                           S3 (Standard, 30-day expiry)
 ```
@@ -46,7 +46,7 @@ as reference or if you prefer clicking through it once.
 | `Caddyfile` | Auto-HTTPS reverse proxy |
 | `deploy.sh` | Selects dev/prod env and brings the stack up |
 | `.env.dev.example` / `.env.prod.example` | Env templates (copy, never commit real ones) |
-| `bin/backup-to-s3.sh` / `bin/restore.sh` | Postgres backup + restore (prod) |
+| `bin/backup-to-s3.sh` / `bin/restore.sh` | Postgres backup + restore (every environment) |
 | `s3-lifecycle.json` / `iam-policy-s3-backup.json` | Standalone S3/IAM configs (Terraform also creates these) |
 | `user-data.sh` | Manual EC2 bootstrap (Terraform renders its own from a template) |
 

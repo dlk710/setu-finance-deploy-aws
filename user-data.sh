@@ -58,16 +58,14 @@ chmod 600 "./.env.${DEPLOY_ENV}"
 # --- Deploy the chosen environment ---
 ./deploy.sh "${DEPLOY_ENV}"
 
-# --- Backups: prod only (dev data is disposable) ---
-if [ "${DEPLOY_ENV}" = "prod" ]; then
-  cp "${DEPLOY_DIR}/bin/backup-to-s3.sh" "${BIN_DIR}/backup-to-s3.sh"
-  cp "${DEPLOY_DIR}/bin/restore.sh"      "${BIN_DIR}/restore.sh"
-  sed -i "s|^BUCKET=.*|BUCKET=\"${BUCKET}\"|" "${BIN_DIR}/backup-to-s3.sh"
-  sed -i "s|^BUCKET=.*|BUCKET=\"${BUCKET}\"|" "${BIN_DIR}/restore.sh"
-  chmod 700 "${BIN_DIR}"/*.sh
-  ( crontab -l 2>/dev/null; \
-    echo "0 */2 * * * ${BIN_DIR}/backup-to-s3.sh prod >> /var/log/setu-backup.log 2>&1" ) \
-    | crontab -
-fi
+# --- Backups every 2 hours for all environments ---
+cp "${DEPLOY_DIR}/bin/backup-to-s3.sh" "${BIN_DIR}/backup-to-s3.sh"
+cp "${DEPLOY_DIR}/bin/restore.sh"      "${BIN_DIR}/restore.sh"
+sed -i "s|^BUCKET=.*|BUCKET=\"${BUCKET}\"|" "${BIN_DIR}/backup-to-s3.sh"
+sed -i "s|^BUCKET=.*|BUCKET=\"${BUCKET}\"|" "${BIN_DIR}/restore.sh"
+chmod 700 "${BIN_DIR}"/*.sh
+( crontab -l 2>/dev/null; \
+  echo "0 */2 * * * ${BIN_DIR}/backup-to-s3.sh ${DEPLOY_ENV} >> /var/log/setu-backup.log 2>&1" ) \
+  | crontab -
 
 echo "Setu ${DEPLOY_ENV} bootstrap complete: https://${SITE_ADDRESS}"

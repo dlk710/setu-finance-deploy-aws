@@ -24,11 +24,12 @@ output "next_steps" {
   description = "What to do after apply."
   value       = <<-EOT
 
-    1. Point DNS for '${var.site_address}' at the public_ip above
-       (or set site_address to '<public_ip>.sslip.io' and skip DNS).
-    2. Give the box a minute, then open https://${var.site_address}
+    1. Public hostname: ${local.resolved_site_address}
+       - If you used a custom site_address, point DNS at the public_ip above.
+       - If site_address was left blank with create_eip=true, sslip.io is already ready.
+    2. Give the box a minute, then open https://${local.resolved_site_address}
     3. Shell in to set PORTAL_PASSWORD / SMTP:
-         - with SSH:  ssh ec2-user@${var.site_address}
+         - with SSH:  ssh ec2-user@${local.resolved_site_address}
          - or no key: AWS console > the instance > Connect > Session Manager
        then:  sudo nano /opt/setu/app/.env.${var.environment} && (cd /opt/setu/app && ./deploy.sh ${var.environment})
   EOT

@@ -7,7 +7,7 @@ changing a few variables — no rewrite.
 ## What it creates
 - **EC2** `t4g.micro` (Amazon Linux 2023, arm64) running the app via `user_data`
 - **Security group** — 443 + 80 open, 22 from your IP only
-- **S3 bucket** — backups, 30‑day expiry (used by prod; harmless in dev)
+- **S3 bucket** — backups, 30‑day expiry
 - **IAM role + instance profile** — S3 backup access + SSM Session Manager
 - Tags `Project / Environment / Owner / ManagedBy` on everything
 
@@ -26,8 +26,9 @@ terraform init
 terraform plan
 terraform apply
 ```
-Then point DNS for `site_address` at the `public_ip` output (or use
-`<public_ip>.sslip.io` and skip DNS), wait ~1 minute, and open `https://<site_address>`.
+If `site_address` is blank and `create_eip = true`, Terraform auto-uses
+`<elastic-ip>.sslip.io`. Otherwise point DNS for `site_address` at the `public_ip`
+output, wait ~1 minute, and open the `https://...` URL shown in `next_steps`.
 Finish setup (portal password, SMTP) via the `next_steps` output.
 
 ## Cost (stays in free tier)
@@ -58,6 +59,7 @@ terraform apply -var-file=prod.tfvars
 
 Create `prod.tfvars` from the example with these changes:
 ```hcl
+app_name      = "setu-finance-prod"
 environment   = "prod"
 instance_type = "t4g.small"          # more headroom
 create_eip    = true                 # stable IP for real DNS
@@ -68,8 +70,8 @@ bucket_name   = "setu-finance-backups"   # can reuse; prod writes under backups/
 
 What changes automatically when `environment = "prod"`:
 - The bootstrap uses `.env.prod` (seeding off — your data is authoritative).
-- The 2‑hour backup cron is installed (dev skips it).
-- Resource names/tags switch to `setu-prod`.
+- The 2‑hour backup cron is installed (dev gets it too; env label changes).
+- Resource names/tags switch to whatever you set in `app_name`.
 
 Then follow **`PROMOTE.md`** for the full release checklist (freeze the branch/tag,
 create the bucket lifecycle + IAM if not already, verify, test a backup/restore).

@@ -4,6 +4,12 @@ variable "region" {
   default     = "us-east-2"
 }
 
+variable "app_name" {
+  description = "Application name used for AWS resource names and tags."
+  type        = string
+  default     = "setu-finance-dev"
+}
+
 variable "environment" {
   description = "Environment name (dev or prod). Drives tags and the bootstrap env file."
   type        = string
@@ -50,8 +56,9 @@ variable "bucket_name" {
 }
 
 variable "site_address" {
-  description = "Public hostname for Caddy/HTTPS, e.g. dev.finance.example.com or <ip>.sslip.io."
+  description = "Public hostname for Caddy/HTTPS, e.g. dev.finance.example.com. Leave blank with create_eip=true to auto-use <elastic-ip>.sslip.io."
   type        = string
+  default     = ""
 }
 
 variable "app_repo_url" {

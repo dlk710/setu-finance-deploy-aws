@@ -1,7 +1,7 @@
 # Firewall: HTTPS/HTTP open (80 needed for cert issuance), SSH from your IP only.
 resource "aws_security_group" "app" {
-  name        = "setu-${var.environment}"
-  description = "Setu ${var.environment} web + ssh"
+  name        = var.app_name
+  description = "${var.app_name} web + ssh"
   vpc_id      = data.aws_vpc.default.id
 
   ingress {
@@ -55,20 +55,32 @@ resource "aws_instance" "app" {
     deploy_repo_url    = var.deploy_repo_url
     deploy_repo_branch = var.deploy_repo_branch
     bucket             = var.bucket_name
-    site_address       = var.site_address
+    site_address       = local.resolved_site_address
   })
 
+  lifecycle {
+    precondition {
+      condition     = local.resolved_site_address != ""
+      error_message = "Set site_address explicitly or enable create_eip so Terraform can generate an sslip.io hostname."
+    }
+  }
+
   tags = {
-    Name = "setu-${var.environment}"
+    Name = var.app_name
   }
 }
 
 # Optional static IP (off by default for dev — see variable description).
 resource "aws_eip" "app" {
-  count    = var.create_eip ? 1 : 0
-  instance = aws_instance.app.id
-  domain   = "vpc"
+  count  = var.create_eip ? 1 : 0
+  domain = "vpc"
   tags = {
-    Name = "setu-${var.environment}"
+    Name = var.app_name
   }
+}
+
+resource "aws_eip_association" "app" {
+  count         = var.create_eip ? 1 : 0
+  instance_id   = aws_instance.app.id
+  allocation_id = aws_eip.app[0].id
 }

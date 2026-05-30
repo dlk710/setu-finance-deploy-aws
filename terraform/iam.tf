@@ -10,7 +10,7 @@ data "aws_iam_policy_document" "ec2_assume" {
 }
 
 resource "aws_iam_role" "instance" {
-  name               = "setu-${var.environment}-instance"
+  name               = "${var.app_name}-instance"
   assume_role_policy = data.aws_iam_policy_document.ec2_assume.json
 }
 
@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "backup" {
 }
 
 resource "aws_iam_role_policy" "backup" {
-  name   = "setu-${var.environment}-s3-backup"
+  name   = "${var.app_name}-s3-backup"
   role   = aws_iam_role.instance.id
   policy = data.aws_iam_policy_document.backup.json
 }
@@ -46,6 +46,6 @@ resource "aws_iam_role_policy_attachment" "ssm" {
 }
 
 resource "aws_iam_instance_profile" "instance" {
-  name = "setu-${var.environment}-instance"
+  name = "${var.app_name}-instance"
   role = aws_iam_role.instance.name
 }
