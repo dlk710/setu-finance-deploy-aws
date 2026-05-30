@@ -1,0 +1,19 @@
+# Copy to terraform.tfvars and fill in. Do NOT commit terraform.tfvars.
+
+# --- required ---
+owner        = "lohith"                       # your name/email (Owner tag)
+my_ip_cidr   = "203.0.113.4/32"               # your public IP /32 for SSH
+bucket_name  = "setu-finance-backups"         # must be globally unique
+site_address = "dev.finance.example.com"      # or "<public_ip>.sslip.io"
+
+# --- optional (dev defaults shown) ---
+region        = "us-east-2"
+environment   = "dev"
+instance_type = "t4g.micro"
+root_volume_gb = 20
+key_name      = ""        # set to an existing EC2 key pair name to enable SSH
+create_eip    = false     # keep false for dev so a stopped box isn't billed for an IP
+app_repo_url    = "https://github.com/dlk710/setu-finance.git"
+app_repo_branch = "main"
+deploy_repo_url = "https://github.com/dlk710/setu-finance-deploy-aws.git"
+deploy_repo_branch = "main"

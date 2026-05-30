@@ -1,0 +1,63 @@
+# Setu Finance - one stack, both environments.
+# Deploy with deploy.sh, which sets COMPOSE_PROJECT_NAME and the active .env:
+#   ./deploy.sh dev     ->  project setu-dev,  uses .env.dev
+#   ./deploy.sh prod    ->  project setu-prod, uses .env.prod
+# One stack per box (container names are fixed). Promote = run the same files
+# with the prod env on the prod box.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: setu-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: setu_portal
+      POSTGRES_USER: setu
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-setu_dev}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U setu -d setu_portal"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: setu-api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://setu:${DB_PASSWORD:-setu_dev}@postgres:5432/setu_portal
+      PORT: "8787"
+    volumes:
+      - web_dist:/web
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: setu-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - web_dist:/srv/setu/dist:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  web_dist:
+  caddy_data:
+  caddy_config:

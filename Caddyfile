@@ -1,0 +1,26 @@
+# Setu Finance - Caddy reverse proxy with automatic HTTPS.
+# SITE_ADDRESS is supplied by compose (from .env).
+#
+# Pick ONE form for SITE_ADDRESS in .env:
+#   1. Real domain (recommended):   SITE_ADDRESS=finance.example.com
+#   2. No domain, real cert:        SITE_ADDRESS=<elastic-ip>.sslip.io
+#   3. Local/private testing only:  SITE_ADDRESS=:443   (then uncomment tls internal)
+
+{$SITE_ADDRESS} {
+	encode gzip
+
+	# Uncomment the next line ONLY for option 3 (self-signed, browser warning).
+	# tls internal
+
+	# API -> Express container on the compose network.
+	handle /api/* {
+		reverse_proxy api:8787
+	}
+
+	# Everything else -> the built React SPA.
+	handle {
+		root * /srv/setu/dist
+		try_files {path} /index.html
+		file_server
+	}
+}

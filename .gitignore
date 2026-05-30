@@ -1,0 +1,23 @@
+# Real environment files (templates with .example are tracked)
+.env
+.env.dev
+.env.prod
+*.env.local
+
+# Credentials
+server/credentials/*.json
+*.pem
+*.key
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform.lock.hcl
+crash.log
+
+# OS / editor
+.DS_Store
+*.swp

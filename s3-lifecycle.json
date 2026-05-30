@@ -1,0 +1,16 @@
+{
+  "Rules": [
+    {
+      "ID": "expire-backups-after-30-days",
+      "Filter": { "Prefix": "backups/" },
+      "Status": "Enabled",
+      "Expiration": { "Days": 30 }
+    },
+    {
+      "ID": "abort-stale-multipart-uploads",
+      "Filter": { "Prefix": "backups/" },
+      "Status": "Enabled",
+      "AbortIncompleteMultipartUpload": { "DaysAfterInitiation": 1 }
+    }
+  ]
+}
