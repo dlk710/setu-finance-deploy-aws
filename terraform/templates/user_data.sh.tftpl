@@ -17,8 +17,9 @@ BIN_DIR="/opt/setu/bin"
 
 # --- Docker + compose plugin (arm64) ---
 dnf update -y
-dnf install -y docker git
+dnf install -y docker git cronie
 systemctl enable --now docker
+systemctl enable --now crond
 usermod -aG docker ec2-user || true
 mkdir -p /usr/local/lib/docker/cli-plugins
 curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-aarch64" \
