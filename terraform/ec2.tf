@@ -12,7 +12,7 @@ resource "aws_security_group" "app" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
-    description = "HTTP (Let's Encrypt challenge + redirect)"
+    description = "HTTP for Lets Encrypt challenge and redirect"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
