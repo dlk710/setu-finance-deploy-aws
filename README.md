@@ -11,9 +11,11 @@ clones both: the app repo for source, this repo for the deploy assets below.
 
 ```
             HTTPS (443)
- Browser ───────────────► Caddy ──/api──► Express ──► Postgres
+Browser ───────────────► Caddy ──/api──► Express ──► Postgres
                             │              (8787)      (volume)
                             └─ serves the built React app
+                            │
+                            └─► private S3 contracts bucket (optional cloud storage)
                                                   │ every 2h: pg_dump
                                                   ▼
                                           S3 (Standard, 30-day expiry)
@@ -61,3 +63,18 @@ so your credits stay intact.
 Never commit real secrets. `.env`, `.env.dev`, `.env.prod`, Terraform state, and
 `terraform.tfvars` are gitignored. The bootstrap generates real secrets on the box
 at first boot; you set `PORTAL_PASSWORD` and SMTP creds by editing the on-box env file.
+
+## Contract storage on AWS
+
+Setu Finance can keep uploaded client contracts in a private S3 bucket instead of the
+instance filesystem. Configure this on the box with:
+
+- `CONTRACTS_S3_BUCKET`
+- `CONTRACTS_S3_PREFIX` (optional, defaults to `contracts`)
+
+Recommended pattern:
+
+- use a dedicated private contracts bucket
+- allow only the EC2 instance role to `GetObject` and `PutObject`
+- keep object keys segmented by `customerCode / year / month / day / timestamp-fileName`
+- leave backups and contracts in separate buckets so retention and access can differ

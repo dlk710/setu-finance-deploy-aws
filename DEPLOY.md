@@ -6,9 +6,11 @@ after **30 days**. No App Runner, RDS, SQS, Lambda, CloudFront, or SES.
 
 ```
             HTTPS (443)
- Browser ───────────────► Caddy ──/api──► Express ──► Postgres
+Browser ───────────────► Caddy ──/api──► Express ──► Postgres
                             │              (8787)      (volume)
                             └─ serves React dist
+                                           │
+                                           └─► private S3 contracts bucket (optional cloud storage)
                                                   │ every 2h: pg_dump
                                                   ▼
                                           S3 (Standard, 30‑day expiry)
@@ -49,6 +51,18 @@ aws s3api put-bucket-lifecycle-configuration --bucket setu-finance-backups \
   --lifecycle-configuration file://s3-lifecycle.json
 ```
 
+## 2a. Create the private contracts bucket
+Use a separate private bucket if you want uploaded client contracts stored in S3 instead
+of on the instance filesystem.
+```bash
+aws s3api create-bucket --bucket setu-finance-contracts --region us-east-2 \
+  --create-bucket-configuration LocationConstraint=us-east-2
+
+aws s3api put-public-access-block --bucket setu-finance-contracts \
+  --public-access-block-configuration \
+  BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+```
+
 ## 3. Create the instance IAM role
 ```bash
 aws iam create-policy --policy-name setu-s3-backup \
@@ -56,6 +70,13 @@ aws iam create-policy --policy-name setu-s3-backup \
 ```
 Then in the IAM console: **Create role → EC2 → attach `setu-s3-backup`**. This becomes the
 instance profile you attach in step 5.
+
+If you use a separate contracts bucket, also grant the instance role:
+
+- `s3:PutObject`
+- `s3:GetObject`
+
+for the contracts bucket path you choose.
 
 ## 4. Allocate an Elastic IP and point DNS at it
 - Allocate an **Elastic IP** (associate it after the instance launches).
@@ -78,10 +99,16 @@ secrets into `.env`, installs the backup/restore scripts, and schedules the 2‑
 SSH in and set the things the bootstrap left blank:
 ```bash
 sudo nano /opt/setu/app/.env     # set PORTAL_PASSWORD, SMTP_USER/PASS/FROM
+                                 # optionally set CONTRACTS_S3_BUCKET / CONTRACTS_S3_PREFIX
 cd /opt/setu/app && docker compose -f compose.prod.yml up -d
 ```
 For Gmail/Zelle sync, place the OAuth files under
 `/opt/setu/app/server/credentials/` (they are not in git).
+
+To turn on S3-based contract storage, add:
+
+- `CONTRACTS_S3_BUCKET=setu-finance-contracts`
+- `CONTRACTS_S3_PREFIX=contracts`
 
 ## 7. Verify
 ```bash
