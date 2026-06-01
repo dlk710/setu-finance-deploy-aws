@@ -35,6 +35,9 @@ choose to scale.
 `DEPLOY.md` is the manual (console) version of what Terraform automates — useful
 as reference or if you prefer clicking through it once.
 
+For the latest verified product/deploy repo sync status, see
+[`CURRENT_RELEASE.md`](CURRENT_RELEASE.md).
+
 ## What's in here
 
 | Path | Purpose |

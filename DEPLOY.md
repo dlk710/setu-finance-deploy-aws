@@ -100,7 +100,7 @@ SSH in and set the things the bootstrap left blank:
 ```bash
 sudo nano /opt/setu/app/.env     # set PORTAL_PASSWORD, SMTP_USER/PASS/FROM
                                  # optionally set CONTRACTS_S3_BUCKET / CONTRACTS_S3_PREFIX
-cd /opt/setu/app && docker compose -f compose.prod.yml up -d
+cd /opt/setu/app && ./deploy.sh dev   # or ./deploy.sh prod on the production box
 ```
 For Gmail/Zelle sync, place the OAuth files under
 `/opt/setu/app/server/credentials/` (they are not in git).
